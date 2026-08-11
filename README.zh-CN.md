@@ -58,6 +58,10 @@ src/
 tests/             # 直接验证界面契约
 ```
 
+## OpenCreator 生态
+
+本项目属于 [OpenCreator](https://github.com/xwcai999/opencreator) 生态，兄弟项目包括 [OpenCreator Novel](https://github.com/xwcai999/opencreator-novel)、[OpenCreator Music](https://github.com/xwcai999/opencreator-music) 和 [OpenCreator Family Video](https://github.com/xwcai999/opencreator-family-video)。各仓库保持独立安装与独立版本。
+
 ## 参与贡献
 
 提交改动前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)、[SECURITY.md](SECURITY.md) 和 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。新增适配器应与 mock-first 核心分开提案，并附带数据流与隐私评审。

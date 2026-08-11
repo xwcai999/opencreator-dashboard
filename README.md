@@ -58,6 +58,10 @@ src/
 tests/             # direct UI contract tests
 ```
 
+## OpenCreator ecosystem
+
+This project is part of [OpenCreator](https://github.com/xwcai999/opencreator), alongside [OpenCreator Novel](https://github.com/xwcai999/opencreator-novel), [OpenCreator Music](https://github.com/xwcai999/opencreator-music), and [OpenCreator Family Video](https://github.com/xwcai999/opencreator-family-video). Each repository remains independently installable and versioned.
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before opening a change. New adapters should be proposed separately from the mock-first core and must include a data-flow and privacy review.
