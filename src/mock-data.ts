@@ -1,4 +1,4 @@
-import type { DashboardDataSource, DashboardSnapshot, PipelineGraph, SongRecord } from "./contracts";
+import type { DashboardDataSource, DashboardSnapshot, PipelineGraph, PublishingSnapshot, SongRecord } from "./contracts";
 
 const songs: SongRecord[] = [
   {
@@ -82,6 +82,62 @@ const activePipeline: PipelineGraph = {
   ]
 };
 
+const publishing: PublishingSnapshot = {
+  contractVersion: "1.0.0",
+  platforms: [
+    {
+      platform: "fanqie",
+      displayName: "番茄音乐",
+      stage: "verified",
+      candidateCount: 8,
+      claimedCount: 8,
+      preparedCount: 8,
+      blockerCodes: [],
+      manualActionRequired: false,
+      updatedAt: "2026-08-11T09:18:00+08:00"
+    },
+    {
+      platform: "qishui",
+      displayName: "汽水音乐",
+      stage: "awaiting_confirmation",
+      candidateCount: 6,
+      claimedCount: 6,
+      preparedCount: 6,
+      blockerCodes: [],
+      manualActionRequired: true,
+      updatedAt: "2026-08-11T09:16:00+08:00"
+    },
+    {
+      platform: "netease",
+      displayName: "网易云音乐",
+      stage: "blocked",
+      candidateCount: 5,
+      claimedCount: 4,
+      preparedCount: 0,
+      blockerCodes: ["GENRE_NOT_SUPPORTED", "LANGUAGE_MISMATCH"],
+      manualActionRequired: false,
+      updatedAt: "2026-08-11T09:14:00+08:00"
+    },
+    {
+      platform: "tencent",
+      displayName: "腾讯音乐",
+      stage: "preparing",
+      candidateCount: 7,
+      claimedCount: 5,
+      preparedCount: 3,
+      blockerCodes: [],
+      manualActionRequired: false,
+      updatedAt: "2026-08-11T09:11:00+08:00"
+    }
+  ],
+  totals: {
+    candidates: 26,
+    claimed: 23,
+    prepared: 17,
+    blocked: 1
+  }
+};
+
 export const mockSnapshot: DashboardSnapshot = {
   generatedAt: "2026-08-11T09:20:00+08:00",
   totals: {
@@ -103,7 +159,8 @@ export const mockSnapshot: DashboardSnapshot = {
     { date: "08-11", success: 12, failed: 1, interrupted: 0 }
   ],
   songs,
-  activePipeline
+  activePipeline,
+  publishing
 };
 
 export const mockDataSource: DashboardDataSource = {

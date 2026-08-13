@@ -2,6 +2,22 @@ export type RunStatus = "success" | "failed" | "running" | "interrupted";
 
 export type PipelineNodeStatus = "success" | "failed" | "pending" | "running" | "skipped";
 
+/** Provider-neutral identifiers shared with the publishers workspace. */
+export type PlatformId = "fanqie" | "qishui" | "netease" | "tencent";
+
+export type PublishStage =
+  | "discovered"
+  | "eligible"
+  | "claimed"
+  | "preparing"
+  | "awaiting_confirmation"
+  | "submitted"
+  | "verified"
+  | "archived"
+  | "blocked"
+  | "failed"
+  | "cancelled";
+
 export interface SongRecord {
   runId: string;
   title: string;
@@ -38,6 +54,29 @@ export interface PipelineGraph {
   nodes: PipelineNode[];
 }
 
+export interface PlatformPublishSnapshot {
+  platform: PlatformId;
+  displayName: string;
+  stage: PublishStage;
+  candidateCount: number;
+  claimedCount: number;
+  preparedCount: number;
+  blockerCodes: string[];
+  manualActionRequired: boolean;
+  updatedAt: string;
+}
+
+export interface PublishingSnapshot {
+  contractVersion: "1.0.0";
+  platforms: PlatformPublishSnapshot[];
+  totals: {
+    candidates: number;
+    claimed: number;
+    prepared: number;
+    blocked: number;
+  };
+}
+
 export interface DashboardSnapshot {
   generatedAt: string;
   totals: {
@@ -52,6 +91,7 @@ export interface DashboardSnapshot {
   daily: DailyPoint[];
   songs: SongRecord[];
   activePipeline: PipelineGraph;
+  publishing: PublishingSnapshot;
 }
 
 /**

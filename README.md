@@ -9,12 +9,13 @@ The project is designed to be a safe starting point for an open content-producti
 - A responsive React + Vite dashboard for run status, quality signals, pipeline stages, and recent works.
 - `src/contracts.ts`: the small read-only data contract used by the view.
 - `src/mock-data.ts`: clearly labelled synthetic data; it contains no real works, paths, accounts, or media.
+- A read-only publishing snapshot for four platforms (Fanqie, Qishui, Netease, and Tencent), including candidate, claim, preparation, confirmation, submission, verification, archive, and blocker signals.
 - Unit tests for rendering, filtering, accessibility, and adapter substitution.
 - GitHub Actions verification with `npm ci` and `npm run check`.
 
 ## What is deliberately not included
 
-This repository does not read or write machine-specific paths, external services, production queues, publisher accounts, browser profiles, credentials, model registries, local databases, generated media, or private creative records. It also does not include novel workflows, publishing controls, tenant management, logs, caches, or design assets whose license is unclear.
+This repository does not read or write machine-specific paths, external services, production queues, publisher accounts, browser profiles, credentials, model registries, local databases, generated media, or private creative records. It also does not include novel workflows, publishing controls (only read-only publishing status is shown), tenant management, logs, caches, or design assets whose license is unclear.
 
 The default app performs no network request. Treat any future adapter as a separate trust boundary and keep secrets outside Git.
 
@@ -47,12 +48,18 @@ interface DashboardDataSource {
 
 Pass an implementation to `<DashboardApp source={yourSource} />`. Keep the implementation outside the mock fixture and document its authentication, retention, and data-redaction behavior. Do not put provider SDKs, tokens, uploaded media, or machine paths into this repository unless the project explicitly adopts and audits them.
 
+## Four-platform publishing status
+
+DashboardSnapshot.publishing follows the provider-neutral contract shared with the publishers workspace (contractVersion 1.0.0). The fixture covers fanqie, qishui, netease, and tencent and renders each platform stage, candidate/claim/preparation counts, manual-confirmation hints, and structured blocker codes as read-only data.
+
+Stages are discovered, eligible, claimed, preparing, awaiting_confirmation, submitted, verified, archived, blocked, failed, and cancelled. The snapshot contains no accounts, cookies, browser profiles, real media paths, work IDs, or submit controls.
+
 ## Project layout
 
 ```text
 src/
   App.tsx          # presentation and interactions
-  contracts.ts     # provider-neutral read-only types
+  contracts.ts     # provider-neutral read-only types (including publishing status)
   mock-data.ts     # synthetic fixture and default source
   styles.css       # original responsive visual system
 tests/             # direct UI contract tests
@@ -60,7 +67,7 @@ tests/             # direct UI contract tests
 
 ## OpenCreator ecosystem
 
-This project is part of [OpenCreator](https://github.com/xwcai999/opencreator), alongside [OpenCreator Novel](https://github.com/xwcai999/opencreator-novel), [OpenCreator Music](https://github.com/xwcai999/opencreator-music), and [OpenCreator Family Video](https://github.com/xwcai999/opencreator-family-video). Each repository remains independently installable and versioned.
+This project is part of [OpenCreator](https://github.com/xwcai999/opencreator), alongside [OpenCreator Novel](https://github.com/xwcai999/opencreator-novel), [OpenCreator Music](https://github.com/xwcai999/opencreator-music), and [OpenCreator Family Video](https://github.com/xwcai999/opencreator-family-video), and [OpenCreator Publishers](https://github.com/xwcai999/opencreator-publishers). Each repository remains independently installable and versioned.
 
 ## Contributing
 

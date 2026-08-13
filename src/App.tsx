@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import type { DashboardDataSource, DashboardSnapshot, RunStatus, SongRecord } from "./contracts";
+import type { DashboardDataSource, DashboardSnapshot, PublishStage, PublishingSnapshot, RunStatus, SongRecord } from "./contracts";
 import { mockDataSource } from "./mock-data";
 import "./styles.css";
 
@@ -11,6 +11,25 @@ const statusLabels: Record<RunStatus, string> = {
   running: "运行中",
   interrupted: "已中断"
 };
+
+const publishStageLabels: Record<PublishStage, string> = {
+  discovered: "已发现",
+  eligible: "已校验",
+  claimed: "已认领",
+  preparing: "准备中",
+  awaiting_confirmation: "等待人工确认",
+  submitted: "已提交",
+  verified: "已验证",
+  archived: "已归档",
+  blocked: "已阻断",
+  failed: "失败",
+  cancelled: "已取消"
+};
+
+const publishStageOrder: PublishStage[] = [
+  "discovered", "eligible", "claimed", "preparing", "awaiting_confirmation",
+  "submitted", "verified", "archived", "blocked", "failed", "cancelled"
+];
 
 const roleLabels: Record<string, string> = {
   "A&R trend planner": "趋势策划",
@@ -34,6 +53,31 @@ function Icon({ kind }: { kind: "spark" | "activity" | "check" | "alert" | "audi
 
 function StatusPill({ status }: { status: RunStatus }) {
   return <span className={`status-pill status-${status}`}><i aria-hidden="true" />{statusLabels[status]}</span>;
+}
+
+function PublishStagePill({ stage }: { stage: PublishStage }) {
+  return <span className={"publish-stage-pill publish-stage-" + stage}><i aria-hidden="true" />{publishStageLabels[stage]}</span>;
+}
+
+function PublishingOverview({ publishing }: { publishing: PublishingSnapshot }) {
+  return <section className="panel publishing-panel" aria-labelledby="publishing-title">
+    <div className="panel-heading"><div><span className="eyebrow">PUBLISHER SNAPSHOT</span><h2 id="publishing-title">四平台发布状态</h2><p>供应商无关的只读快照，不包含登录、上传或提交控制。</p></div><span className="contract-badge">CONTRACT {publishing.contractVersion}</span></div>
+    <div className="publishing-totals" aria-label="发布总计">
+      <div><span>候选</span><strong>{publishing.totals.candidates}</strong></div>
+      <div><span>已认领</span><strong>{publishing.totals.claimed}</strong></div>
+      <div><span>已准备</span><strong>{publishing.totals.prepared}</strong></div>
+      <div><span>已阻断</span><strong className={publishing.totals.blocked ? "total-blocked" : ""}>{publishing.totals.blocked}</strong></div>
+    </div>
+    <div className="platform-grid">
+      {publishing.platforms.map((platform) => <article className={"platform-card stage-" + platform.stage} key={platform.platform}>
+        <div className="platform-card-head"><div><span className="platform-id">{platform.platform.toUpperCase()}</span><h3>{platform.displayName}</h3></div><PublishStagePill stage={platform.stage} /></div>
+        <div className="platform-metrics"><div><span>候选</span><strong>{platform.candidateCount}</strong></div><div><span>认领</span><strong>{platform.claimedCount}</strong></div><div><span>准备</span><strong>{platform.preparedCount}</strong></div></div>
+        <div className="platform-meta">{platform.manualActionRequired ? <span className="manual-badge">需要人工确认</span> : <span className="readonly-badge">只读快照</span>}<small>{platform.updatedAt.slice(11, 16)} 更新</small></div>
+        {platform.blockerCodes.length > 0 && <div className="blocker-list" aria-label={platform.displayName + " 阻断错误码"}><span>阻断码</span>{platform.blockerCodes.map((code) => <code key={code}>{code}</code>)}</div>}
+      </article>)}
+    </div>
+    <div className="publish-stage-legend" aria-label="发布状态契约"><span className="legend-label">阶段契约</span>{publishStageOrder.map((stage) => <span className={"publish-legend-item publish-stage-" + stage} key={stage}><i aria-hidden="true" />{publishStageLabels[stage]}</span>)}</div>
+  </section>;
 }
 
 function Kpi({ label, value, hint, tone, icon }: { label: string; value: string | number; hint: string; tone: string; icon: Parameters<typeof Icon>[0]["kind"] }) {
@@ -119,6 +163,7 @@ export function DashboardApp({ source = mockDataSource }: { source?: DashboardDa
       </section>
       <div className="dashboard-grid"><section className="panel trend-panel" aria-labelledby="trend-title"><div className="panel-heading"><div><span className="eyebrow">RUN HISTORY</span><h2 id="trend-title">每日运行趋势</h2><p>成功、失败与中断的演示分布</p></div><div className="legend"><span><i className="legend-success" />成功</span><span><i className="legend-failed" />失败</span><span><i className="legend-interrupted" />中断</span></div></div><TrendChart snapshot={snapshot} /></section><section className="panel quality-panel" aria-labelledby="quality-title"><div className="panel-heading"><div><span className="eyebrow">QUALITY SIGNALS</span><h2 id="quality-title">质量信号</h2><p>面向适配器的最小指标集</p></div></div><div className="quality-ring" style={{ "--quality": `${snapshot.totals.successRate * 3.6}deg` } as CSSProperties}><div><strong>{snapshot.totals.successRate}%</strong><span>通过率</span></div></div><div className="quality-list"><div><span>音频可用</span><strong>{snapshot.totals.audioReadyRate}%</strong></div><div><span>封面可用</span><strong>{snapshot.totals.coverReadyRate}%</strong></div><div><span>活跃任务</span><strong>{snapshot.totals.running}</strong></div></div></section></div>
       <Pipeline snapshot={snapshot} />
+      <PublishingOverview publishing={snapshot.publishing} />
       <SongTable songs={snapshot.songs} filter={filter} onFilter={setFilter} />
       <footer className="page-footer"><span>OpenCreator Dashboard · Apache-2.0</span><span>数据源：本地 mock fixture · 不会读取外部文件或服务</span></footer>
     </main>
