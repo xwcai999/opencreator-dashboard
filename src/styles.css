@@ -92,6 +92,51 @@ button { cursor: pointer; }
 .legend-label { color: var(--muted); font: 700 10px "Cascadia Mono", Consolas, monospace; letter-spacing: .06em; }
 .publish-legend-item { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border-radius: 4px; font-size: 10px; }
 .song-panel { overflow: hidden; }.song-heading { padding-bottom: 16px; }.filter-label { display: inline-grid; gap: 4px; color: var(--muted); font-size: 10px; }.filter-label select { min-width: 98px; padding: 7px 8px; color: var(--ink); background: var(--soft); border: 1px solid var(--line); border-radius: 5px; font-size: 11px; }.table-wrap { overflow-x: auto; border-top: 1px solid var(--line); }.table-wrap table { width: 100%; min-width: 760px; border-collapse: collapse; text-align: left; }.table-wrap th { padding: 10px 20px; color: var(--muted); background: var(--soft); font: 700 10px "Cascadia Mono", Consolas, monospace; letter-spacing: .05em; white-space: nowrap; }.table-wrap td { padding: 13px 20px; border-top: 1px solid #edf1ef; color: #42504f; font-size: 11px; vertical-align: middle; }.table-wrap tbody tr:hover { background: #fbfdfc; }.song-name { display: flex; align-items: center; gap: 10px; min-width: 220px; }.cover-mark { width: 32px; height: 32px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 6px; color: var(--teal); background: #e7f4f0; }.cover-mark .icon { width: 16px; }.song-name > div, .cell-subtitle { display: grid; gap: 3px; }.song-name strong { color: var(--ink); font-size: 12px; }.song-name small, .cell-subtitle { max-width: 240px; overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }.score { color: var(--teal); font-size: 13px; }.muted { color: #aab6b3; }.media-state { display: flex; gap: 8px; }.media-state > span { display: inline-grid; place-items: center; }.media-state .icon { width: 15px; }.media-state .ready { color: var(--teal); }.empty-row { padding: 30px !important; color: var(--muted) !important; text-align: center; }
+.wawa-panel { margin-bottom: 12px; padding-bottom: 20px; }
+.wawa-status-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 15px; margin: 17px 20px 0; color: var(--muted); font-size: 10px; }
+.wawa-status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 999px; font-size: 10px; white-space: nowrap; }
+.wawa-status-pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.wawa-status-success { color: #08766a; background: #e5f6f1; }
+.wawa-status-partial { color: #9b6510; background: #fff3d9; }
+.wawa-status-stale { color: #92671a; background: #fff0cb; }
+.wawa-status-unavailable { color: #ad3d3d; background: #fdecec; }
+.wawa-kpi-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin: 14px 20px 20px; }
+.wawa-kpi-card { min-width: 0; min-height: 86px; padding: 12px; display: flex; align-items: flex-start; gap: 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); }
+.wawa-kpi-icon { width: 27px; height: 27px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 7px; }
+.wawa-kpi-icon .icon { width: 15px; height: 15px; }
+.wawa-kpi-card.tone-blue .wawa-kpi-icon { color: #1e4ea8; background: #e3ebff; }
+.wawa-kpi-card.tone-green .wawa-kpi-icon { color: #08766a; background: var(--teal-light); }
+.wawa-kpi-card.tone-red .wawa-kpi-icon { color: #ad3d3d; background: #fde5e5; }
+.wawa-kpi-card.tone-amber .wawa-kpi-icon { color: #9b6510; background: #fff0d2; }
+.wawa-kpi-card > div:last-child { min-width: 0; display: grid; gap: 4px; }
+.wawa-kpi-card span { color: var(--muted); font-size: 10px; white-space: nowrap; }
+.wawa-kpi-card strong { overflow: hidden; color: var(--ink); font-size: 17px; letter-spacing: -.03em; text-overflow: ellipsis; white-space: nowrap; }
+.wawa-trend-heading { margin: 0 20px 12px; padding-top: 14px; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; border-top: 1px solid var(--line); }
+.wawa-trend-heading h3 { margin: 4px 0 0; font-size: 15px; letter-spacing: -.02em; }
+.wawa-readonly-note { color: var(--muted); font: 10px "Cascadia Mono", Consolas, monospace; }
+.wawa-trend-chart { margin: 0 20px; padding: 4px 0 0; }
+.wawa-trend-row { min-height: 32px; display: grid; grid-template-columns: 64px minmax(0, 1fr) 91px; align-items: center; gap: 10px; }
+.wawa-trend-label { color: var(--muted); font-size: 10px; white-space: nowrap; }
+.wawa-trend-bars { height: 26px; display: flex; align-items: flex-end; justify-content: space-between; gap: 4px; border-bottom: 1px solid #edf1ef; }
+.wawa-trend-bar { width: min(18px, 12%); min-height: 2px; border-radius: 3px 3px 0 0; transition: height .25s ease; }
+.wawa-trend-bar-chapterCount { background: #5277d2; }
+.wawa-trend-bar-wordCount { background: var(--teal); }
+.wawa-trend-bar-revenue, .wawa-trend-bar-dailyRevenue { background: #d9a62e; }
+.wawa-trend-bar-followers { background: #c94b47; }
+.wawa-trend-bar-followDelta { background: #7a6bc3; }
+.wawa-trend-bar-empty { background: #dfe6e2; }
+.wawa-trend-latest { color: var(--ink); font-size: 10px; font-weight: 600; text-align: right; white-space: nowrap; }
+.wawa-trend-dates { display: grid; grid-template-columns: 64px minmax(0, 1fr) 91px; gap: 10px; margin-top: 5px; }
+.wawa-trend-dates > div { display: flex; justify-content: space-between; gap: 4px; }
+.wawa-trend-dates small { color: var(--muted); font: 9px "Cascadia Mono", Consolas, monospace; }
+.wawa-trend-empty { min-height: 120px; margin: 0 20px; display: grid; place-content: center; justify-items: center; gap: 6px; color: var(--muted); border: 1px dashed var(--line); border-radius: 7px; background: var(--soft); }
+.wawa-trend-empty .icon { color: var(--teal); }
+.wawa-trend-empty strong { color: var(--ink); font-size: 12px; }
+.wawa-trend-empty span { font-size: 10px; }
+.wawa-message { margin: 14px 20px 0; padding: 9px 10px; border-radius: 5px; font-size: 10px; line-height: 1.5; }
+.wawa-message-success { color: #17695f; background: #effaf7; }
+.wawa-message-partial, .wawa-message-stale { color: #805a13; background: #fff8e9; }
+.wawa-message-unavailable { color: #964040; background: #fff1f1; }
 .page-footer { padding: 24px 2px 0; display: flex; justify-content: space-between; gap: 10px; color: #899694; font-size: 10px; }.loading-screen { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 8px; color: var(--teal); }.loading-screen p { margin: 0; color: var(--muted); font-size: 12px; }
-@media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); }.platform-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.publishing-totals { grid-template-columns: repeat(2, 1fr); }.dashboard-grid { grid-template-columns: 1fr; }.hero h1 { font-size: 46px; } }
-@media (max-width: 620px) { .platform-grid { grid-template-columns: 1fr; margin-left: 14px; margin-right: 14px; }.publishing-totals { margin-left: 14px; margin-right: 14px; }.publishing-totals strong { font-size: 17px; }.publishing-panel .panel-heading { align-items: flex-start; }.contract-badge { font-size: 9px; } .topbar { padding: 0 16px; }.brand small { display: none; }.mock-badge { display: none; }.page-content { width: calc(100% - 24px); padding-top: 30px; }.hero { align-items: flex-start; flex-direction: column; gap: 20px; }.hero h1 { font-size: 40px; }.hero-stamp { min-width: 0; }.kpi-grid { gap: 8px; }.kpi-card { min-height: 98px; padding: 12px; }.kpi-icon { width: 29px; height: 29px; }.kpi-copy strong { font-size: 22px; }.kpi-copy small { display: none; }.panel-heading { padding-left: 14px; padding-right: 14px; }.trend-chart { margin-left: 14px; margin-right: 14px; }.legend { gap: 5px; }.pipeline-track { padding-left: 10px; padding-right: 10px; }.pipeline-step strong { font-size: 10px; }.pipeline-step small { display: none; }.pipeline-node { width: 30px; height: 30px; }.pipeline-link { top: 14px; left: calc(50% + 15px); right: calc(-50% + 15px); }.song-heading { align-items: flex-end; }.filter-label select { min-width: 76px; }.table-wrap th, .table-wrap td { padding-left: 14px; padding-right: 14px; }.page-footer { flex-direction: column; } }
+@media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); }.wawa-kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }.platform-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.publishing-totals { grid-template-columns: repeat(2, 1fr); }.dashboard-grid { grid-template-columns: 1fr; }.hero h1 { font-size: 46px; } }
+@media (max-width: 620px) { .platform-grid { grid-template-columns: 1fr; margin-left: 14px; margin-right: 14px; }.publishing-totals { margin-left: 14px; margin-right: 14px; }.publishing-totals strong { font-size: 17px; }.publishing-panel .panel-heading { align-items: flex-start; }.contract-badge { font-size: 9px; } .topbar { padding: 0 16px; }.brand small { display: none; }.mock-badge { display: none; }.page-content { width: calc(100% - 24px); padding-top: 30px; }.hero { align-items: flex-start; flex-direction: column; gap: 20px; }.hero h1 { font-size: 40px; }.hero-stamp { min-width: 0; }.kpi-grid { gap: 8px; }.kpi-card { min-height: 98px; padding: 12px; }.kpi-icon { width: 29px; height: 29px; }.kpi-copy strong { font-size: 22px; }.kpi-copy small { display: none; }.panel-heading { padding-left: 14px; padding-right: 14px; }.trend-chart { margin-left: 14px; margin-right: 14px; }.legend { gap: 5px; }.pipeline-track { padding-left: 10px; padding-right: 10px; }.pipeline-step strong { font-size: 10px; }.pipeline-step small { display: none; }.pipeline-node { width: 30px; height: 30px; }.pipeline-link { top: 14px; left: calc(50% + 15px); right: calc(-50% + 15px); }.song-heading { align-items: flex-end; }.filter-label select { min-width: 76px; }.table-wrap th, .table-wrap td { padding-left: 14px; padding-right: 14px; }.wawa-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-left: 14px; margin-right: 14px; }.wawa-status-strip, .wawa-trend-heading, .wawa-trend-chart, .wawa-trend-empty, .wawa-message { margin-left: 14px; margin-right: 14px; }.wawa-trend-row { grid-template-columns: 57px minmax(0, 1fr) 75px; gap: 6px; }.wawa-trend-latest { font-size: 9px; }.wawa-trend-dates { grid-template-columns: 57px minmax(0, 1fr) 75px; gap: 6px; }.wawa-trend-dates small { font-size: 8px; }.page-footer { flex-direction: column; } }

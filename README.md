@@ -10,6 +10,7 @@ The project is designed to be a safe starting point for an open content-producti
 - `src/contracts.ts`: the small read-only data contract used by the view.
 - `src/mock-data.ts`: clearly labelled synthetic data; it contains no real works, paths, accounts, or media.
 - A read-only publishing snapshot for four platforms (Fanqie, Qishui, Netease, and Tencent), including candidate, claim, preparation, confirmation, submission, verification, archive, and blocker signals.
+- A Wawa statistics panel for redacted aggregate snapshots: books, chapters, words, total/daily revenue, followers, follow delta, freshness, and trends. Missing metrics stay unknown instead of being displayed as zero.
 - Unit tests for rendering, filtering, accessibility, and adapter substitution.
 - GitHub Actions verification with `npm ci` and `npm run check`.
 
@@ -18,6 +19,8 @@ The project is designed to be a safe starting point for an open content-producti
 This repository does not read or write machine-specific paths, external services, production queues, publisher accounts, browser profiles, credentials, model registries, local databases, generated media, or private creative records. It also does not include novel workflows, publishing controls (only read-only publishing status is shown), tenant management, logs, caches, or design assets whose license is unclear.
 
 The default app performs no network request. Treat any future adapter as a separate trust boundary and keep secrets outside Git.
+
+The Wawa panel consumes only the `WawaStatsSnapshot` read-only contract. The bundled fixture is synthetic, and the UI has no collector, login, synchronization, upload, or submission control. Produce compatible JSON offline with OpenCreator Novel's independently installable `$wawa-source` Skill.
 
 ## Quick start
 
@@ -54,12 +57,18 @@ DashboardSnapshot.publishing follows the provider-neutral contract shared with t
 
 Stages are discovered, eligible, claimed, preparing, awaiting_confirmation, submitted, verified, archived, blocked, failed, and cancelled. The snapshot contains no accounts, cookies, browser profiles, real media paths, work IDs, or submit controls.
 
+## Wawa aggregate statistics
+
+`DashboardSnapshot.wawaStats` is optional, so older music-only adapters remain compatible. Contract `1.0.0` supports `success`, `partial`, `stale`, and `unavailable` states, nullable totals, a dated trend series, freshness metadata, and an explicit `availableMetrics` list. The view never requires work titles or remote identifiers.
+
+Use only redacted aggregate output from `$wawa-source`; do not connect this repository directly to authenticated Wawa pages or browser profiles.
+
 ## Project layout
 
 ```text
 src/
   App.tsx          # presentation and interactions
-  contracts.ts     # provider-neutral read-only types (including publishing status)
+  contracts.ts     # provider-neutral read-only types (publishing + Wawa aggregates)
   mock-data.ts     # synthetic fixture and default source
   styles.css       # original responsive visual system
 tests/             # direct UI contract tests

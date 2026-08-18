@@ -1,4 +1,4 @@
-import type { DashboardDataSource, DashboardSnapshot, PipelineGraph, PublishingSnapshot, SongRecord } from "./contracts";
+import type { DashboardDataSource, DashboardSnapshot, PipelineGraph, PublishingSnapshot, SongRecord, WawaStatsSnapshot } from "./contracts";
 
 const songs: SongRecord[] = [
   {
@@ -138,6 +138,38 @@ const publishing: PublishingSnapshot = {
   }
 };
 
+/** Synthetic aggregate-only fixture. It intentionally has no work labels or remote identifiers. */
+export const mockWawaStats: WawaStatsSnapshot = {
+  contractVersion: "1.0.0",
+  status: "success",
+  generatedAt: "2026-08-11T09:20:00+08:00",
+  range: {
+    days: 7,
+    from: "2026-08-05T00:00:00+08:00",
+    to: "2026-08-11T23:59:59+08:00"
+  },
+  totals: {
+    bookCount: 4,
+    chapterCount: 186,
+    wordCount: 482600,
+    revenue: 1386.42,
+    dailyRevenue: 42.8,
+    followers: 12840,
+    followDelta: 317
+  },
+  trend: [
+    { date: "08-05", bookCount: 4, chapterCount: 164, wordCount: 426800, revenue: 1228.4, dailyRevenue: 31.2, followers: 11980, followDelta: 182 },
+    { date: "08-06", bookCount: 4, chapterCount: 168, wordCount: 438500, revenue: 1261.8, dailyRevenue: 33.4, followers: 12120, followDelta: 140 },
+    { date: "08-07", bookCount: 4, chapterCount: 171, wordCount: 445200, revenue: 1289.2, dailyRevenue: 27.4, followers: 12240, followDelta: 120 },
+    { date: "08-08", bookCount: 4, chapterCount: 176, wordCount: 456900, revenue: 1317.6, dailyRevenue: 28.4, followers: 12410, followDelta: 170 },
+    { date: "08-09", bookCount: 4, chapterCount: 180, wordCount: 467500, revenue: 1348.2, dailyRevenue: 30.6, followers: 12580, followDelta: 170 },
+    { date: "08-10", bookCount: 4, chapterCount: 183, wordCount: 475900, revenue: 1370.1, dailyRevenue: 21.9, followers: 12690, followDelta: 110 },
+    { date: "08-11", bookCount: 4, chapterCount: 186, wordCount: 482600, revenue: 1386.42, dailyRevenue: 16.32, followers: 12840, followDelta: 150 }
+  ],
+  availableMetrics: ["bookCount", "chapterCount", "wordCount", "revenue", "dailyRevenue", "followers", "followDelta"],
+  message: "仅展示脱敏聚合指标，不包含作品标识或账号信息。"
+};
+
 export const mockSnapshot: DashboardSnapshot = {
   generatedAt: "2026-08-11T09:20:00+08:00",
   totals: {
@@ -160,7 +192,8 @@ export const mockSnapshot: DashboardSnapshot = {
   ],
   songs,
   activePipeline,
-  publishing
+  publishing,
+  wawaStats: mockWawaStats
 };
 
 export const mockDataSource: DashboardDataSource = {
