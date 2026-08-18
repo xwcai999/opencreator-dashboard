@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import type { DashboardDataSource, DashboardSnapshot, PublishStage, PublishingSnapshot, RunStatus, SongRecord } from "./contracts";
+import type {
+  DashboardDataSource,
+  DashboardSnapshot,
+  PublishStage,
+  PublishingSnapshot,
+  RunStatus,
+  SongRecord,
+  WawaStatsMetricKey,
+  WawaStatsSnapshot,
+  WawaStatsStatus
+} from "./contracts";
 import { mockDataSource } from "./mock-data";
 import "./styles.css";
 
@@ -38,7 +48,24 @@ const roleLabels: Record<string, string> = {
   "Dance producer": "律动制作"
 };
 
-function Icon({ kind }: { kind: "spark" | "activity" | "check" | "alert" | "audio" | "cover" | "refresh" }) {
+const wawaStatusLabels: Record<WawaStatsStatus, string> = {
+  success: "数据完整",
+  partial: "部分可用",
+  stale: "数据已过期",
+  unavailable: "暂不可用"
+};
+
+const wawaMetricLabels: Record<WawaStatsMetricKey, string> = {
+  bookCount: "作品数",
+  chapterCount: "章节数",
+  wordCount: "字数",
+  revenue: "累计收益",
+  dailyRevenue: "日收益",
+  followers: "追读人数",
+  followDelta: "追读增量"
+};
+
+function Icon({ kind }: { kind: "spark" | "activity" | "check" | "alert" | "audio" | "cover" | "refresh" | "book" | "coins" | "users" | "trend" }) {
   const paths = {
     spark: <><path d="m12 2 1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5L12 2Z"/><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z"/></>,
     activity: <><path d="M3 12h3l2-7 4 14 2-7h7"/></>,
@@ -46,7 +73,11 @@ function Icon({ kind }: { kind: "spark" | "activity" | "check" | "alert" | "audi
     alert: <><path d="M12 4 3.5 19h17L12 4Z"/><path d="M12 10v4M12 17h.01"/></>,
     audio: <><path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></>,
     cover: <><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.4"/><path d="m4 17 5-5 3 3 2-2 6 5"/></>,
-    refresh: <><path d="M20 11a8 8 0 0 0-14-4L4 9"/><path d="M4 4v5h5"/><path d="M4 13a8 8 0 0 0 14 4l2-2"/><path d="M20 20v-5h-5"/></>
+    refresh: <><path d="M20 11a8 8 0 0 0-14-4L4 9"/><path d="M4 4v5h5"/><path d="M4 13a8 8 0 0 0 14 4l2-2"/><path d="M20 20v-5h-5"/></>,
+    book: <><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/><path d="M4 5.5v16M8 7h8M8 11h8"/></>,
+    coins: <><circle cx="8" cy="8" r="4"/><path d="M8 6v4M6.5 8h3"/><path d="M11 11a4 4 0 1 0 5-5"/><path d="M15 10v4M13.5 12h3"/></>,
+    users: <><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 4.5a3 3 0 0 1 0 6M18 20a5 5 0 0 0-2.5-4.3"/></>,
+    trend: <><path d="M3 17 9 11l4 4 8-9"/><path d="M16 6h5v5"/></>
   };
   return <svg className="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{paths[kind]}</svg>;
 }
@@ -77,6 +108,106 @@ function PublishingOverview({ publishing }: { publishing: PublishingSnapshot }) 
       </article>)}
     </div>
     <div className="publish-stage-legend" aria-label="发布状态契约"><span className="legend-label">阶段契约</span>{publishStageOrder.map((stage) => <span className={"publish-legend-item publish-stage-" + stage} key={stage}><i aria-hidden="true" />{publishStageLabels[stage]}</span>)}</div>
+  </section>;
+}
+
+const wawaTrendMetricKeys: WawaStatsMetricKey[] = [
+  "chapterCount",
+  "wordCount",
+  "revenue",
+  "dailyRevenue",
+  "followers",
+  "followDelta"
+];
+
+const wawaMetricIcons: Record<WawaStatsMetricKey, Parameters<typeof Icon>[0]["kind"]> = {
+  bookCount: "book",
+  chapterCount: "book",
+  wordCount: "activity",
+  revenue: "coins",
+  dailyRevenue: "coins",
+  followers: "users",
+  followDelta: "trend"
+};
+
+const wawaMetricTones: Record<WawaStatsMetricKey, string> = {
+  bookCount: "blue",
+  chapterCount: "blue",
+  wordCount: "green",
+  revenue: "amber",
+  dailyRevenue: "amber",
+  followers: "red",
+  followDelta: "blue"
+};
+
+function formatWawaValue(key: WawaStatsMetricKey, value: number | null | undefined): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) return "—";
+  const isMoney = key === "revenue" || key === "dailyRevenue";
+  return `${new Intl.NumberFormat("zh-CN", {
+    minimumFractionDigits: isMoney ? 2 : 0,
+    maximumFractionDigits: isMoney ? 2 : 0
+  }).format(value)}${isMoney ? " 元" : ""}`;
+}
+
+function WawaStatusPill({ status }: { status: WawaStatsStatus }) {
+  return <span className={`wawa-status-pill wawa-status-${status}`}><i aria-hidden="true" />{wawaStatusLabels[status]}</span>;
+}
+
+function WawaTrendChart({ stats }: { stats: WawaStatsSnapshot }) {
+  const points = stats.trend;
+  const metrics = wawaTrendMetricKeys.filter((key) =>
+    stats.availableMetrics.includes(key) || points.some((point) => typeof point[key] === "number")
+  );
+
+  if (stats.status === "unavailable" || !points.length || !metrics.length) {
+    return <div className="wawa-trend-empty" role="status"><Icon kind="trend" /><strong>当前暂无趋势数据</strong><span>快照不可用或尚未提供可展示的指标。</span></div>;
+  }
+
+  return <div className="wawa-trend-chart" aria-label="蛙蛙统计趋势图">
+    {metrics.map((key) => {
+      const values = points.map((point) => point[key]).filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+      const maxValue = Math.max(...values, 1);
+      const latest = points.at(-1)?.[key];
+      return <div className="wawa-trend-row" key={key}>
+        <span className="wawa-trend-label">{wawaMetricLabels[key]}</span>
+        <div className="wawa-trend-bars">
+          {points.map((point) => {
+            const value = point[key];
+            const numericValue = typeof value === "number" && Number.isFinite(value) ? value : null;
+            return <span
+              className={`wawa-trend-bar ${numericValue === null ? "wawa-trend-bar-empty" : "wawa-trend-bar-" + key}`}
+              key={`${key}-${point.date}`}
+              style={{ height: numericValue === null ? "0%" : `${Math.max((numericValue / maxValue) * 100, 4)}%` }}
+              title={`${point.date} · ${wawaMetricLabels[key]}：${formatWawaValue(key, numericValue)}`}
+            />;
+          })}
+        </div>
+        <strong className="wawa-trend-latest">{formatWawaValue(key, latest)}</strong>
+      </div>;
+    })}
+    <div className="wawa-trend-dates" aria-hidden="true"><span /><div>{points.map((point) => <small key={point.date}>{point.date}</small>)}</div><span /></div>
+  </div>;
+}
+
+function WawaStatsOverview({ stats }: { stats: WawaStatsSnapshot }) {
+  const cards: WawaStatsMetricKey[] = ["bookCount", "chapterCount", "wordCount", "revenue", "dailyRevenue", "followers", "followDelta"];
+  const snapshotTime = stats.generatedAt.includes("T") ? stats.generatedAt.slice(11, 16) : stats.generatedAt;
+  return <section className="panel wawa-panel" aria-labelledby="wawa-title">
+    <div className="panel-heading"><div><span className="eyebrow">WAWA SIGNAL / AGGREGATE ONLY</span><h2 id="wawa-title">蛙蛙统计</h2><p>只读脱敏聚合快照，不含作品名称、远端标识、账号信息或操作权限。</p></div><span className="contract-badge">WAWA CONTRACT {stats.contractVersion}</span></div>
+    <div className="wawa-status-strip" aria-label="蛙蛙统计快照状态">
+      <WawaStatusPill status={stats.status} />
+      <span>快照时间 {snapshotTime}</span>
+      <span>观察窗口 {stats.range.days} 天</span>
+    </div>
+    <div className="wawa-kpi-grid" aria-label="蛙蛙聚合指标">
+      {cards.map((key) => <article className={`wawa-kpi-card tone-${wawaMetricTones[key]}`} key={key}>
+        <div className="wawa-kpi-icon"><Icon kind={wawaMetricIcons[key]} /></div>
+        <div><span>{wawaMetricLabels[key]}</span><strong>{formatWawaValue(key, stats.totals[key])}</strong></div>
+      </article>)}
+    </div>
+    <div className="wawa-trend-heading"><div><span className="eyebrow">DAILY SIGNAL / {stats.range.days} DAYS</span><h3>指标趋势</h3></div><span className="wawa-readonly-note">只读趋势</span></div>
+    <WawaTrendChart stats={stats} />
+    {stats.message && <p className={`wawa-message wawa-message-${stats.status}`}>{stats.message}</p>}
   </section>;
 }
 
@@ -164,6 +295,7 @@ export function DashboardApp({ source = mockDataSource }: { source?: DashboardDa
       <div className="dashboard-grid"><section className="panel trend-panel" aria-labelledby="trend-title"><div className="panel-heading"><div><span className="eyebrow">RUN HISTORY</span><h2 id="trend-title">每日运行趋势</h2><p>成功、失败与中断的演示分布</p></div><div className="legend"><span><i className="legend-success" />成功</span><span><i className="legend-failed" />失败</span><span><i className="legend-interrupted" />中断</span></div></div><TrendChart snapshot={snapshot} /></section><section className="panel quality-panel" aria-labelledby="quality-title"><div className="panel-heading"><div><span className="eyebrow">QUALITY SIGNALS</span><h2 id="quality-title">质量信号</h2><p>面向适配器的最小指标集</p></div></div><div className="quality-ring" style={{ "--quality": `${snapshot.totals.successRate * 3.6}deg` } as CSSProperties}><div><strong>{snapshot.totals.successRate}%</strong><span>通过率</span></div></div><div className="quality-list"><div><span>音频可用</span><strong>{snapshot.totals.audioReadyRate}%</strong></div><div><span>封面可用</span><strong>{snapshot.totals.coverReadyRate}%</strong></div><div><span>活跃任务</span><strong>{snapshot.totals.running}</strong></div></div></section></div>
       <Pipeline snapshot={snapshot} />
       <PublishingOverview publishing={snapshot.publishing} />
+      {snapshot.wawaStats && <WawaStatsOverview stats={snapshot.wawaStats} />}
       <SongTable songs={snapshot.songs} filter={filter} onFilter={setFilter} />
       <footer className="page-footer"><span>OpenCreator Dashboard · Apache-2.0</span><span>数据源：本地 mock fixture · 不会读取外部文件或服务</span></footer>
     </main>

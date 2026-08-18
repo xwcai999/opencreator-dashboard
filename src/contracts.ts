@@ -77,6 +77,60 @@ export interface PublishingSnapshot {
   };
 }
 
+/**
+ * Sanitized, provider-specific aggregate status for the Wawa metrics view.
+ *
+ * The contract deliberately contains no work names, remote identifiers,
+ * tenant/account identifiers, filesystem paths, credentials, or controls.
+ * It is safe to pass between a local snapshot adapter and this read-only UI.
+ */
+export type WawaStatsStatus = "success" | "partial" | "stale" | "unavailable";
+
+export type WawaStatsMetricKey =
+  | "bookCount"
+  | "chapterCount"
+  | "wordCount"
+  | "revenue"
+  | "dailyRevenue"
+  | "followers"
+  | "followDelta";
+
+export interface WawaStatsTotals {
+  bookCount: number | null;
+  chapterCount: number | null;
+  wordCount: number | null;
+  revenue: number | null;
+  dailyRevenue: number | null;
+  followers: number | null;
+  followDelta: number | null;
+}
+
+export interface WawaStatsTrendPoint {
+  date: string;
+  bookCount?: number | null;
+  chapterCount?: number | null;
+  wordCount?: number | null;
+  revenue?: number | null;
+  dailyRevenue?: number | null;
+  followers?: number | null;
+  followDelta?: number | null;
+}
+
+export interface WawaStatsSnapshot {
+  contractVersion: "1.0.0";
+  status: WawaStatsStatus;
+  generatedAt: string;
+  range: {
+    days: 7 | 30 | 90;
+    from?: string;
+    to?: string;
+  };
+  totals: WawaStatsTotals;
+  trend: WawaStatsTrendPoint[];
+  availableMetrics: WawaStatsMetricKey[];
+  message?: string;
+}
+
 export interface DashboardSnapshot {
   generatedAt: string;
   totals: {
@@ -92,6 +146,8 @@ export interface DashboardSnapshot {
   songs: SongRecord[];
   activePipeline: PipelineGraph;
   publishing: PublishingSnapshot;
+  /** Optional: old music-only snapshots remain valid without Wawa metrics. */
+  wawaStats?: WawaStatsSnapshot;
 }
 
 /**
