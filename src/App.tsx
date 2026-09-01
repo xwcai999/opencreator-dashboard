@@ -11,9 +11,12 @@ import type {
   WawaStatsStatus
 } from "./contracts";
 import { mockDataSource } from "./mock-data";
+import { WawaStatsPage } from "./WawaStatsPage";
+import { WawaSubmissionPage } from "./WawaSubmissionPage";
 import "./styles.css";
 
 type Filter = "all" | RunStatus;
+type View = "overview" | "wawa-stats" | "wawa-submission";
 
 const statusLabels: Record<RunStatus, string> = {
   success: "成功",
@@ -271,6 +274,7 @@ function SongTable({ songs, filter, onFilter }: { songs: SongRecord[]; filter: F
 export function DashboardApp({ source = mockDataSource }: { source?: DashboardDataSource }) {
   const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
+  const [view, setView] = useState<View>("overview");
   const [refreshing, setRefreshing] = useState(false);
 
   const load = async () => {
@@ -283,8 +287,8 @@ export function DashboardApp({ source = mockDataSource }: { source?: DashboardDa
   if (!snapshot) return <main className="loading-screen"><Icon kind="spark" /><p>正在载入演示数据…</p></main>;
 
   return <div className="app-shell">
-    <header className="topbar"><div className="brand"><span className="brand-mark"><Icon kind="spark" /></span><div><strong>OpenCreator</strong><small>CONTENT PIPELINE DASHBOARD</small></div></div><div className="topbar-meta"><span className="mock-badge">MOCK DATA</span><button className="refresh-button" onClick={() => void load()} disabled={refreshing}><Icon kind="refresh" />{refreshing ? "刷新中" : "刷新"}</button></div></header>
-    <main className="page-content">
+    <header className="topbar"><div className="brand"><span className="brand-mark"><Icon kind="spark" /></span><div><strong>OpenCreator</strong><small>CONTENT PIPELINE DASHBOARD</small></div></div><nav className="topbar-nav" aria-label="主导航"><button aria-current={view === "overview" ? "page" : undefined} onClick={() => setView("overview")}>总览</button><button aria-current={view === "wawa-stats" ? "page" : undefined} onClick={() => setView("wawa-stats")}>蛙蛙数据</button><button aria-current={view === "wawa-submission" ? "page" : undefined} onClick={() => setView("wawa-submission")}>蛙蛙投稿</button></nav><div className="topbar-meta"><span className="mock-badge">{source.capabilities?.mode === "http" ? "LOCAL ADAPTER" : "MOCK DATA"}</span>{view === "overview" && <button className="refresh-button" onClick={() => void load()} disabled={refreshing}><Icon kind="refresh" />{refreshing ? "刷新中" : "刷新"}</button>}</div></header>
+    {view === "wawa-stats" ? <WawaStatsPage source={source} /> : view === "wawa-submission" ? <main className="page-content"><WawaSubmissionPage source={source} /></main> : <main className="page-content">
       <section className="hero"><div><span className="eyebrow">CREATIVE OPERATIONS / MUSIC</span><h1>把创作过程变成<br /><em>可读的信号链</em></h1><p>一个轻量、可替换数据源的创作流水线观察台。先用 mock 开始，再接入你自己的系统。</p></div><div className="hero-stamp"><span>SNAPSHOT</span><strong>7 DAYS</strong><small>更新时间 {snapshot.generatedAt.slice(11, 16)}</small></div></section>
       <section className="kpi-grid" aria-label="关键指标">
         <Kpi label="总运行" value={snapshot.totals.runs} hint="演示窗口累计" tone="blue" icon="activity" />
@@ -297,7 +301,7 @@ export function DashboardApp({ source = mockDataSource }: { source?: DashboardDa
       <PublishingOverview publishing={snapshot.publishing} />
       {snapshot.wawaStats && <WawaStatsOverview stats={snapshot.wawaStats} />}
       <SongTable songs={snapshot.songs} filter={filter} onFilter={setFilter} />
-      <footer className="page-footer"><span>OpenCreator Dashboard · Apache-2.0</span><span>数据源：本地 mock fixture · 不会读取外部文件或服务</span></footer>
-    </main>
+      <footer className="page-footer"><span>OpenCreator Dashboard · Apache-2.0</span><span>{source.capabilities?.mode === "http" ? "数据源：显式配置的本地 HTTP 适配器" : "数据源：本地 mock fixture · 不会读取外部文件或服务"}</span></footer>
+    </main>}
   </div>;
 }

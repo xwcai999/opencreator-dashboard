@@ -150,10 +150,124 @@ export interface DashboardSnapshot {
   wawaStats?: WawaStatsSnapshot;
 }
 
+export type WawaMetricsDays = "all" | 1 | 3 | 7 | 30 | 90;
+
+export interface WawaBookMetrics {
+  bookKey: string;
+  title: string;
+  status?: string;
+  shelfStatus?: string;
+  channel?: string;
+  categories?: string[];
+  isFinished?: boolean | null;
+  latest: {
+    chapterCount: number | null;
+    wordCount: number | null;
+    revenue: number | null;
+    dailyRevenue: number | null;
+    followers: number | null;
+    followDelta: number | null;
+  };
+  updatedAt?: string;
+}
+
+export interface WawaBookTrendPoint {
+  date: string;
+  bookKey: string;
+  chapterCount?: number | null;
+  wordCount?: number | null;
+  revenue?: number | null;
+  dailyRevenue?: number | null;
+  followers?: number | null;
+  followDelta?: number | null;
+}
+
+export interface WawaMetricsView {
+  available: boolean;
+  stale: boolean;
+  range: { days: WawaMetricsDays; from?: string; to?: string };
+  summary: WawaStatsTotals & { mode: "cumulative" | "period" };
+  books: WawaBookMetrics[];
+  series: WawaBookTrendPoint[];
+  availableMetrics: WawaStatsMetricKey[];
+  updatedAt?: string;
+  message?: string;
+}
+
+export interface WawaSubmissionPackageView {
+  bookKey: string;
+  createdAt: string;
+  title: string;
+  penName: string;
+  summary: string;
+  channel: string;
+  status: string;
+  categories: string[];
+  tags: string[];
+  manuscript: { fileName: string; sizeBytes: number; wordCount?: number };
+  cover: { fileName: string; sizeBytes: number };
+  preflight: { ok: boolean; errors: string[]; blockers: string[]; warnings: string[]; wordCount: number };
+  canPrepare: boolean;
+  submitted: boolean;
+  submittedAt?: string;
+}
+
+export interface WawaSubmissionRunView {
+  runId: string;
+  action: "dry-run" | "prepare" | "login" | "cancel";
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  bookKeys: string[];
+  title: string;
+  message: string;
+  blockers: string[];
+  warnings: string[];
+  canCancel: boolean;
+}
+
+export interface WawaSubmissionView {
+  items: WawaSubmissionPackageView[];
+  runs: WawaSubmissionRunView[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  campaignCode?: string;
+  campaignName?: string;
+  loginStatus?: "ready" | "login_required" | "unknown";
+}
+
+export type WawaSubmissionAction = "dry-run" | "prepare" | "login" | "cancel" | "confirm" | "unconfirm";
+
+export interface WawaSubmissionActionRequest {
+  action: WawaSubmissionAction;
+  bookKey?: string;
+  runId?: string;
+  campaignCode?: string;
+}
+
+export interface WawaActionResult {
+  status?: string;
+  message: string;
+  runId?: string;
+}
+
+export interface DashboardCapabilities {
+  mode: "mock" | "http";
+  wawaMetricsSync: boolean;
+  wawaSubmissionActions: boolean;
+}
+
 /**
  * The dashboard only consumes this read-only contract. A future adapter may
  * implement it without changing the presentation layer.
  */
 export interface DashboardDataSource {
+  capabilities?: DashboardCapabilities;
   getSnapshot(): Promise<DashboardSnapshot>;
+  getWawaMetrics?(days: WawaMetricsDays): Promise<WawaMetricsView>;
+  syncWawaMetrics?(): Promise<WawaActionResult>;
+  getWawaSubmission?(page: number, pageSize: number): Promise<WawaSubmissionView>;
+  runWawaSubmissionAction?(request: WawaSubmissionActionRequest): Promise<WawaActionResult>;
 }

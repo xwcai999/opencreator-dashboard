@@ -32,6 +32,17 @@ describe("OpenCreator dashboard", () => {
     expect(screen.getByTitle("暂无封面")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /刷新/ })).toBeEnabled();
   });
+
+  it("navigates to the dedicated Wawa views through the injected data source", async () => {
+    render(<DashboardApp />);
+    await screen.findByRole("heading", { name: /把创作过程变成/ });
+
+    fireEvent.click(screen.getByRole("button", { name: "蛙蛙数据" }));
+    expect(await screen.findByRole("heading", { name: "蛙蛙数据" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "蛙蛙投稿" }));
+    expect(await screen.findByRole("heading", { name: "蛙蛙投稿" })).toBeInTheDocument();
+  });
   it("renders the four-platform publishing snapshot without submit controls", async () => {
     render(<DashboardApp />);
 

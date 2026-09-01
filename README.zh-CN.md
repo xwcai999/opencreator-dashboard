@@ -10,17 +10,18 @@ OpenCreator Dashboard 是一个轻量、供应商无关的内容生产流水线�
 - `src/contracts.ts`：视图使用的最小只读数据契约。
 - `src/mock-data.ts`：明确标记的合成数据，不含真实作品、路径、账号或媒体。
 - 四个平台（番茄、汽水、网易云、腾讯）的只读发布快照：候选、认领、准备、人工确认、提交、验证、归档与阻断码。
-- 蛙蛙脱敏聚合统计面板：作品数、章节数、字数、总/单日收益、关注者、关注变化、快照时效和趋势。缺失指标保持未知，不会显示成 0。
+- 独立的蛙蛙数据与投稿页面：累计/时间范围、作品筛选、指标显隐、10 条分页、预检详情与最近 10 条运行历史。
+- 可选的本地 HTTP 适配器；真实同步和投稿操作只有显式开启后才可用。
 - 覆盖渲染、筛选、可访问性和数据源替换的单元测试。
 - GitHub Actions 验证流程：`npm ci` 与 `npm run check`。
 
 ## 明确不包含什么
 
-本仓库不会读取或写入机器专属路径、外部服务、生产队列、平台账号、浏览器 profile、凭据、模型注册表、本地数据库、生成媒体或私有创作记录；也不包含小说工作流、发布控制（仅展示只读发布状态）、租户管理、日志、缓存以及许可证不明确的设计资产。
+本仓库不包含机器专属路径、平台账号、浏览器 Profile、凭据、本地数据库、生成媒体、私有创作记录、日志、缓存以及许可证不明确的设计资产。
 
 默认应用不会发起网络请求。未来接入适配器时，应将它视为独立的信任边界，并把密钥放在 Git 仓库之外。
 
-蛙蛙面板只消费只读 `WawaStatsSnapshot` 契约。内置 fixture 全部是合成数据，界面没有采集、登录、同步、上传或提交按钮。兼容 JSON 可由 OpenCreator Novel 中可独立安装的 `$wawa-source` 在本地生成。
+内置 fixture 全部是合成数据。可选本地适配器能够读取详细统计和投稿材料；同步、登录、预填及状态修改需要单独显式开启。预填会停在最终提交前，最终投稿仍由用户在蛙蛙页面人工完成。
 
 ## 快速开始
 
@@ -49,7 +50,7 @@ interface DashboardDataSource {
 }
 ```
 
-将实现传给 `<DashboardApp source={yourSource} />` 即可。适配器应独立于 mock fixture，并记录认证、留存和数据脱敏行为。除非项目完成明确的安全审计，否则不要把供应商 SDK、令牌、上传媒体或机器路径放入本仓库。
+将实现传给 `<DashboardApp source={yourSource} />` 即可。使用内置本地适配器时，可复制 `.env.example`，设置 `VITE_OPENCREATOR_API_BASE=/local-api`，并用 `OPENCREATOR_LOCAL_API_TARGET` 指向独立运行的本地服务。除非本机操作者明确授权，应保持 `VITE_OPENCREATOR_ENABLE_WAWA_ACTIONS=false`。
 
 ## 四平台发布状态
 
@@ -57,11 +58,11 @@ DashboardSnapshot.publishing 使用与发布器仓库共享的供应商无关契
 
 阶段值为：discovered、eligible、claimed、preparing、awaiting_confirmation、submitted、verified、archived、blocked、failed、cancelled。快照不包含账号、Cookie、浏览器 Profile、真实媒体路径、作品 ID 或提交按钮。
 
-## 蛙蛙聚合统计
+## 蛙蛙数据与投稿
 
 `DashboardSnapshot.wawaStats` 是可选字段，因此旧的纯音乐适配器仍然兼容。`1.0.0` 契约支持 `success`、`partial`、`stale`、`unavailable` 四种状态、可空汇总值、按日期趋势、时效元数据及明确的 `availableMetrics` 列表。界面不需要作品名或远端标识。
 
-只应使用 `$wawa-source` 输出的脱敏聚合数据；不要把本仓直接连接到已登录的蛙蛙页面或浏览器 Profile。
+独立统计页默认显示累计数据，并提供 1/3/7/30/90 天范围、作品/频道/完结筛选、趋势指标显隐和作品明细。投稿页按 10 条分页，只展示最近 10 条运行历史。适配器只访问配置的本地 HTTP 服务，不直接读取浏览器 Profile 或凭据；默认不暴露写操作，也不实现最终提交。
 
 ## 目录结构
 
@@ -69,6 +70,9 @@ DashboardSnapshot.publishing 使用与发布器仓库共享的供应商无关契
 src/
   App.tsx          # 可视化和交互
   contracts.ts     # 供应商无关的只读类型（四平台发布 + 蛙蛙聚合）
+  http-data-source.ts # 可选本地 HTTP 适配器
+  WawaStatsPage.tsx
+  WawaSubmissionPage.tsx
   mock-data.ts     # 合成 fixture 与默认数据源
   styles.css       # 原创响应式视觉系统
 tests/             # 直接验证界面契约
